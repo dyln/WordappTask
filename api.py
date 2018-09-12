@@ -1,10 +1,12 @@
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import os
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
+from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
+
 
 app = Flask(__name__)
 
@@ -13,7 +15,11 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'mobile_blog.db')
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'posts.db')
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'comments.db')
+## facebook app id = 1862171063899187
+## facebook secret = b9d0553846e525d053aeb4e30ab3db26
 
+facebook_blueprint = make_facebook_blueprint(client_id='1862171063899187', client_secret='b9d0553846e525d053aeb4e30ab3db26')
+app.register_blueprint(facebook_blueprint, url_prefix='/facebook_login')
 db = SQLAlchemy(app)
 
 class User(db.Model):
@@ -43,6 +49,23 @@ class Todo(db.Model):
     text = db.Column(db.String(50))
     complete = db.Column(db.Boolean)
     user_id = db.Column(db.Integer)
+
+#bura gidicek
+#facebook id gelcek o idden usera bakcak
+#appten facebook id(12 hane), id'i al graph api kullanarak bak kimmiş, varsa gir yoksa kayıt ol ?
+@app.route('/facebook')
+def facebook_login():
+    if not facebook.authorized:
+        return redirect(url_for('facebook.login'))
+    account_info= facebook.get('public_profile.json')
+
+    if account_info.ok:
+        account_info_json=account_info.json()
+        return '<h1> Your Facebook name is @{}</h1>'.format(account_info_json['name'])
+    
+    return '<h1>Request failed!</h1>'
+ 
+ #####   
 
 @app.route('/user', methods=['GET'])
 def get_all_users():
