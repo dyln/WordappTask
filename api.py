@@ -81,7 +81,6 @@ def token_required(f):
 #bura gidicek
 #facebook id gelcek o idden usera bakcak
 #appten facebook id(12 hane), id'i al graph api kullanarak bak kimmis, varsa gir yoksa kayit ol ?
-
 #USE THIS
 #curl -i -X GET \
  # "https://graph.facebook.com/v3.1/me?fields=id%2Cname%2Cabout%2Cemail&access_token=EAAadonzGVDMBAK3JXox2caX8XZCFJCIkF8bI3HpVriQibBmfP6hLGdm6rILXitdSwxKYvMFzMb9cPAb0M1zITTGcm7f17V97IKRCzDKApTI5UJCQrqWUvCIHpCjnNI0teATTxBlYtTcY2BmOJ3fCZCEN8DDSGwMvkuGU2sxsvWm5Kylrjve9a0is0YrCb0jWAeoAjfdY5ZAkmVuUMbdtmb4NBNW2cYEzmjt4xgr2VdxZBOz7fVS0"
