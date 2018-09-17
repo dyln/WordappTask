@@ -200,7 +200,7 @@ def signup():
     
     data = request.get_json() 
     
-    if "@" not in data['email']:
+    if "@" not in data['email']:  #change this
         return jsonify({'message' : 'Please enter a valid e-mail adress.'})
 
     user = User.query.filter_by(email=data['email']).first()
@@ -230,6 +230,117 @@ def fbsignup():
     db.session.commit()
 
     return jsonify({'message' : 'New User created! You can now login.'})
+
+@app.route('/post', methods=['GET'])
+@token_required
+def get_all_posts(current_user):
+    #public_posts = Post.query.filter_by(publish=True).all()
+    posts = Post.query.all()#filter_by(user_id=current_user.id).all()
+
+    output = []
+
+    for post in posts:
+        if (post.publish == True or post.user_id == current_user.id):
+            post_data = {}
+            post_data['id'] = post.id
+            post_data['text'] = post.text
+            post_data['user_id'] = post.user_id
+            post_data['file_path'] = post.file_path
+            post_data['draft']=post.draft
+            post_data['publish']=post.publish
+            output.append(post_data)
+
+    return jsonify({'posts': output})
+
+@app.route('/post/<post_id>', methods=['GET'])
+@token_required
+def get_one_post(current_user, post_id): ## public
+    post = Post.query.filter_by(id=post_id).first()
+
+    if not post:
+        return jsonify({'message' : 'Post not found!'})
+
+    if (post.publish == True or post.user_id == current_user.id):
+        post_data = {}
+        post_data['id'] = post.id
+        post_data['text'] = post.text
+        post_data['user_id'] = post.user_id
+        post_data['file_path'] = post.file_path
+        post_data['draft']=post.draft
+        post_data['publish']=post.publish
+        return jsonify({'post': post_data})
+        ## COMMENT SECTION WILL COME HERE
+    else:
+        return jsonify({'message': 'Post not found!'})
+
+@app.route('/post', methods=['POST'])
+@token_required
+def create_post(current_user):
+    data = request.get_json()
+
+    new_post = Post(text = data['text'], user_id=current_user.id, file_path="?", draft=True, publish=False)
+    db.session.add(new_post)
+    db.session.commit()
+    
+    return jsonify({'message' : 'New post created.'})
+
+@app.route('/post/<post_id>', methods=['PATCH'])
+@token_required
+def update_post(current_user ,post_id):
+    data = request.get_json()
+
+    post = Post.query.filter_by(id=post_id).first()
+
+    if not post:
+        return jsonify({'message' : 'Post not found!'})
+
+    if post.user_id == current_user.id:
+        post.text = data['text']
+        db.session.commit()
+        return jsonify({'message' : 'Post updated.'})
+    else:
+        return jsonify({'message' : 'no can do :/'})
+
+@app.route('/post/<post_id>', methods=['PUT'])
+@token_required
+def publish_post(current_user, post_id):
+    post = Post.query.filter_by(id=post_id).first()
+
+    if not post:
+        return jsonify({'message' : 'Post not found!'})
+
+    if post.user_id == current_user.id:
+        if post.publish == False:
+            post.publish = True
+            post.draft = False
+            db.session.commit()
+            return jsonify({'message' : 'Post published.'})
+        if post.publish == True:
+            post.publish = False
+            post.draft = True
+            db.session.commit()
+            return jsonify({'message' : 'Post unpublished.'})
+    else:
+        return jsonify({'message' : 'no can do :/'})
+
+
+@app.route('/post/<post_id>', methods=['DELETE'])
+@token_required
+def delete_post(current_user, post_id):
+    post = Post.query.filter_by(id=post_id).first()
+
+    if not post:
+        return jsonify({'message' : 'Post not found!'})
+    
+    if post.user_id == current_user.id:
+        db.session.delete(post)
+        db.session.commit()
+        return jsonify({'message' : 'Post deleted.'})
+        ## comments to that post should be deleted also
+    else:
+        return jsonify({'message' : 'no can do :/'})
+
+
 
 
 if __name__ == '__main__':

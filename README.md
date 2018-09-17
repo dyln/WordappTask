@@ -4,12 +4,12 @@
 I want to build a mobile app that people can use so as to create blog posts and review comments regarding to posts. So my mobile app needs a rest API server to manage all stuff. 
 
 ## Functional Requirements:
-* I want to be able to sign up by email/password or Facebook; <br />
+* ~~I want to be able to sign up by email/password or Facebook~~ <br />
 * I want to be able to sign in using access token (Oauth Authentication) <br />
-* I want to be able to create/update/delete posts; <br />
+* ~~I want to be able to create/update/delete posts;~~ <br />
 * I want to be able to attach files to posts <br />
-* I want to be able to mark post as 'draft' (not public) <br />
-* I want to be able to mark post as 'publish' (public) <br />
+* ~~I want to be able to mark post as 'draft' (not public)~~ <br />
+* ~~I want to be able to mark post as 'publish' (public)~~ <br />
 * I want to be able to read/update/delete comments <br />
 * I want to be able to mark comment as 'visible' (public) <br />
 * I want to be able to mark comment as 'invisible' (not public) <br />
