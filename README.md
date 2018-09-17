@@ -10,9 +10,9 @@ I want to build a mobile app that people can use so as to create blog posts and 
 * I want to be able to attach files to posts <br />
 * ~~I want to be able to mark post as 'draft' (not public)~~ <br />
 * ~~I want to be able to mark post as 'publish' (public)~~ <br />
-* I want to be able to read/update/delete comments <br />
-* I want to be able to mark comment as 'visible' (public) <br />
-* I want to be able to mark comment as 'invisible' (not public) <br />
+* ~~I want to be able to read/update/delete comments~~ <br />
+* ~~I want to be able to mark comment as 'visible' (public)~~ <br />
+* ~~I want to be able to mark comment as 'invisible' (not public)~~ <br />
 
 ## Technical Requirements
 * It should be a WEB application: <br />
