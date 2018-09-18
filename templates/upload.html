@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Upload</title>
+</head>
+<body>
+
+<form id="upload-form" action="{{ url_for('upload', post_id=post_id) }}" method="POST" enctype="multipart/form-data">
+
+    <strong>Files:</strong><br>
+    <input id="file-picker" type="file" name="file" accept="image/*">
+    <div id="msg"></div>
+    <input type="submit" value="Upload!" id="upload-button">
+</form>
+</body>
+</html>

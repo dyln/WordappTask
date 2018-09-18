@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, make_response, redirect, url_for
+from flask import Flask, request, jsonify, make_response, redirect, url_for, render_template
 from flask_sqlalchemy import SQLAlchemy
 import os
 import uuid
@@ -8,10 +8,9 @@ import datetime
 from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
 from functools import wraps
 import urllib2
-import json
 
 app = Flask(__name__)
-
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 app.config['SECRET_KEY'] = 'thisissecret'
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'mobile_blog.db')
@@ -266,6 +265,52 @@ def get_one_post(current_user, post_id): ## public
         ## COMMENT SECTION WILL COME HERE
     else:
         return jsonify({'message': 'Post not found!'})
+
+@app.route('/post/<post_id>/')
+#@token_required
+def index( post_id):
+    #print (post_id)
+    return render_template("upload.html", post_id=post_id)
+
+@app.route('/post/<post_id>/upload', methods=['POST'])
+#@token_required
+def upload(post_id):
+    target = os.path.join(APP_ROOT, 'images/')
+    print(target)
+
+    post = Post.query.filter_by(id=post_id).first()
+    if not os.path.isdir(target):
+        os.mkdir(target)
+    #post_data = {}
+    #post_data['file_path'] = post.file_path
+
+    # if (post.user_id == current_user.id):
+    #     post_data = {}
+    #     post_data['id'] = post.id
+    #     post_data['text'] = post.text
+    #     post_data['user_id'] = post.user_id
+    #     post_data['file_path'] = post.file_path
+    #     post_data['draft']=post.draft
+    #     post_data['publish']=post.publish
+    # else:
+    #     return jsonify({'message' : 'no can do :/'})
+
+    #if (post.user_id == current_user.id):
+    for file in request.files.getlist("file"):
+        #file = request.files.getlist("file")
+        print(file)
+        filename = file.filename
+        destination = "".join([target, filename])
+        print(destination)
+        file.save(destination)
+        post.file_path=destination
+        db.session.commit()
+        return render_template("complete.html")
+    #else:
+     #   return jsonify({'message' : 'there was a problem'})
+
+    
+
 
 @app.route('/post', methods=['POST'])
 @token_required
