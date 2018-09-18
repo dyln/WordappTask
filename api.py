@@ -51,12 +51,6 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer)
     visible = db.Column(db.Boolean)
 
-class Todo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.String(50))
-    complete = db.Column(db.Boolean)
-    user_id = db.Column(db.Integer)
-
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -222,8 +216,8 @@ def signup():
 def fbsignup():
     data_raw = urllib2.urlopen(fb_url+fb_access_token)
     data = json.load(data_raw)
-
-    hashed_password = generate_password_hash(data['email'], method='sha256') ## !!!!
+    
+    hashed_password = generate_password_hash(datetime.datetime.now(), method='sha256') ## !!!!
 
     new_user = User(public_id=str(uuid.uuid4()), name=data['name'], password=hashed_password,email=data['email'], admin = False)
     db.session.add(new_user)
@@ -328,15 +322,18 @@ def publish_post(current_user, post_id):
 @token_required
 def delete_post(current_user, post_id):
     post = Post.query.filter_by(id=post_id).first()
+    comments = Comment.query.filter_by(post_id=post_id).all()
 
     if not post:
         return jsonify({'message' : 'Post not found!'})
     
     if post.user_id == current_user.id:
         db.session.delete(post)
+        for comment in comments:
+            if comment:
+                db.session.delete(comment)
         db.session.commit()
-        return jsonify({'message' : 'Post deleted.'})
-        ## comments to that post should be deleted also
+        return jsonify({'message' : 'Post and comments to that post are deleted.'})
     else:
         return jsonify({'message' : 'no can do :/'})
 
@@ -345,21 +342,32 @@ def delete_post(current_user, post_id):
 @token_required
 def get_all_comments(current_user, post_id):
     comments = Comment.query.filter_by(post_id=post_id).all()
+    post = Post.query.filter_by(id=post_id).first()
+
+    if not post:
+        return jsonify({'message' : 'Post not found!'})
+
+    if (post.publish == True or post.user_id == current_user.id):
+        post_data = {}
+        post_data['id'] = post.id
+        post_data['text'] = post.text
+        post_data['user_id'] = post.user_id
+        post_data['file_path'] = post.file_path
+        post_data['draft']=post.draft
+        post_data['publish']=post.publish
 
     output = []
 
-    ## post will come here
     for comment in comments:
-        #if (comment.visible==True):
-        comment_data = {}
-        comment_data['id'] = comment.id
-        comment_data['text'] = comment.text
-        comment_data['user_id'] = comment.user_id
-        #comment_data['post_id'] = comment
-        comment_data['visibility'] = comment.visible
-        output.append(comment_data)
+        if (comment.visible==True or comment.user_id == current_user.id):
+            comment_data = {}
+            comment_data['id'] = comment.id
+            comment_data['text'] = comment.text
+            comment_data['user_id'] = comment.user_id
+            comment_data['visibility'] = comment.visible
+            output.append(comment_data)
 
-    return jsonify({'comments' : output})
+    return jsonify({'post': post_data } , {'comments' : output})
 
 @app.route('/post/<post_id>/comments/<comment_id>', methods=['GET'])
 @token_required
@@ -383,19 +391,6 @@ def get_comment(current_user, comment_id, post_id):
 def create_comment(current_user, post_id):
     data = request.get_json()
     post = Post.query.filter_by(id=post_id).first()
-
-    # if (post.publish == True):
-    #     post_data = {}
-    #     post_data['id'] = post.id
-    #     post_data['text'] = post.text
-    #     post_data['user_id'] = post.user_id
-    #     post_data['file_path'] = post.file_path
-    #     post_data['draft']=post.draft
-    #     post_data['publish']=post.publish
-
-    # print (post_id)
-    # print (post_data['id'])
-    # if (post_data['id'] == post_id):
 
     if post.publish == True:
         new_comment = Comment(text = data['text'], user_id=current_user.id, post_id=post_id, visible=False )

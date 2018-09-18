@@ -5,7 +5,7 @@ I want to build a mobile app that people can use so as to create blog posts and 
 
 ## Functional Requirements:
 * ~~I want to be able to sign up by email/password or Facebook~~ <br />
-* I want to be able to sign in using access token (Oauth Authentication) <br />
+* ~~I want to be able to sign in using access token (Oauth Authentication)~~ <br />
 * ~~I want to be able to create/update/delete posts;~~ <br />
 * I want to be able to attach files to posts <br />
 * ~~I want to be able to mark post as 'draft' (not public)~~ <br />
